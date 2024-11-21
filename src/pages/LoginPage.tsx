@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
+import { Container, TextField, Button, Typography, Alert } from '@mui/material';
 
 const LoginPage: React.FC = () => {
-    const [username, setUserName] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null); // Clear previous errors
 
@@ -19,48 +18,54 @@ const LoginPage: React.FC = () => {
                 },
                 body: JSON.stringify({ username, password }),
             });
+
             if (!response.ok) {
-                throw new Error(`Error: ${response.status} ${response.statusText}`);
+                throw new Error('Login failed. Please check your credentials.');
             }
 
             const data = await response.json();
-            console.log('Login successful:', data);
 
-            // Save token
             if (data.token) {
-                localStorage.setItem('token', data.token);
-                console.log('Token saved successfully');
+                localStorage.setItem('token', data.token); // Save the token
+                alert('Login successful!');
+                window.location.href = '/profile'; // Redirect to profile page
             } else {
-                throw new Error('Token not found in the response');
+                throw new Error('Token not found in server response.');
             }
-        } catch (error) {
-            console.error('Login error:', error);
+        } catch (err: any) {
+            console.error('Error during login:', err);
+            setError(err.message); // Display error to the user
         }
     };
 
-
     return (
-        <div>
-            <h1>Login</h1>
-            <form onSubmit={handleSubmit}>
-                <input
+        <Container maxWidth="sm">
+            <Typography variant="h4" gutterBottom>
+                Login
+            </Typography>
+            {error && <Alert severity="error">{error}</Alert>}
+            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <TextField
+                    label="Email"
                     type="text"
-                    placeholder="Email"
                     value={username}
-                    onChange={(e) => setUserName(e.target.value)}
+                    onChange={(e) => setUsername(e.target.value)}
+                    fullWidth
                     required
                 />
-                <input
+                <TextField
+                    label="Password"
                     type="password"
-                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    fullWidth
                     required
                 />
-                <button type="submit">Login</button>
+                <Button type="submit" variant="contained" color="primary" fullWidth>
+                    Login
+                </Button>
             </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-        </div>
+        </Container>
     );
 };
 
