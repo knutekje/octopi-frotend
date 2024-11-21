@@ -1,36 +1,24 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
-import Dashboard from './pages/Dashboard';
-import ProtectedRoute from './components/ProtectedRoute';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import AdminPanel from "./pages/AdminPanel.tsx";
+import ProfilePage from './pages/ProfilePage';
+import {TestLogin} from "./components/TestLogin.tsx";
 
-function App() {
+const App = () => {
     return (
         <Router>
-            <ToastContainer /> {/* Place it here */}
-            <Routes>
-                <Route path="/" element={<LoginPage />} />
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin"
-                    element={
-                        <ProtectedRoute adminOnly>
-                            <AdminPanel />
-                        </ProtectedRoute>
-                    }
-                />
-            </Routes>
+            <div>
+                <Navbar /> {/* Add the navbar */}
+                <TestLogin/>
+                <Routes>
+                    <Route path="/" element={<LoginPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                </Routes>
+            </div>
         </Router>
     );
-}
+};
 
 export default App;
+

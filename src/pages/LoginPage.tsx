@@ -1,53 +1,65 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState('');
+    const [username, setUserName] = useState('');
     const [password, setPassword] = useState('');
-    const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
 
-    const handleLogin = async (e: React.FormEvent) => {
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null); // Clear previous errors
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ username, password }),
             });
-
             if (!response.ok) {
-                throw new Error('Failed to login');
+                throw new Error(`Error: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
-            localStorage.setItem('token', data.token); // Save JWT
-            navigate('/dashboard');
+            console.log('Login successful:', data);
+
+            // Save token
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                console.log('Token saved successfully');
+            } else {
+                throw new Error('Token not found in the response');
+            }
         } catch (error) {
-            console.error('Login failed:', error);
+            console.error('Login error:', error);
         }
     };
+
 
     return (
         <div>
             <h1>Login</h1>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit}>
                 <input
-                    type="email"
+                    type="text"
                     placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUserName(e.target.value)}
+                    required
                 />
                 <input
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    required
                 />
                 <button type="submit">Login</button>
             </form>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
     );
 };
